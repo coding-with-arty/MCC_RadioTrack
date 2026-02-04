@@ -2,7 +2,7 @@
 
 **Maine Department of Corrections - MCC Radio/Equipment Management System**
 
-> **Copyright (c) 2025 Arthur Belanger (github.com/MusicalViking)**
+> **Copyright (c) 2025 Arthur Belanger (github.com/coding-with-arty)**
 > All rights reserved.
 
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=Streamlit&logoColor=white)](https://streamlit.io/)
