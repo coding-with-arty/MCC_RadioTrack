@@ -6,7 +6,7 @@
 
 ---
 
-# Author: github/musicalviking
+# Author: github/coding-with-arty
 
 # RadioTrack - MCC Radio Inventory System Deployment Guide
 
@@ -23,7 +23,7 @@ This document provides instructions for deploying the RadioTrack - Department of
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/MusicalViking/radiotrack.git
+git clone https://github.com/coding-with-arty/radiotrack.git
 cd RadioTrack
 ```
 

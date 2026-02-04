@@ -3,7 +3,7 @@ RadioTrack - Radio Inventory Management System
 --------------------------------------
 simple_backup.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -46,7 +46,8 @@ class SimpleBackupManager:
         self.max_backups = max_backups
         self.last_backup_time = None
         logger.info(
-            f"Backup Manager initialized with db_path={self.db_path}, backup_dir={self.backup_dir}"
+            f"Backup Manager initialized with db_path={
+                self.db_path}, backup_dir={self.backup_dir}"
         )
 
     def create_backup(self):
@@ -117,7 +118,8 @@ class SimpleBackupManager:
                 timestamp_str = bf.stem.split("_backup_")[-1]
                 try:
                     # Try to parse the timestamp
-                    timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+                    timestamp = datetime.strptime(
+                        timestamp_str, "%Y%m%d_%H%M%S")
                     formatted_date = timestamp.strftime("%Y-%m-%d %H:%M:%S")
                 except ValueError:
                     formatted_date = "Unknown date"

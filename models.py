@@ -3,7 +3,7 @@ RadioTrack - Department of Corrections Radio Management System
 --------------------------------------
 Models.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -78,7 +78,8 @@ def update_item(item_id, category, name, location, condition, notes):
     """
     try:
         success = DatabaseManager.execute_query(
-            query, (category, name, location, condition, notes, item_id), commit=True
+            query, (category, name, location, condition,
+                    notes, item_id), commit=True
         )
         if success:
             logger.info(f"Item updated successfully: {name} (ID: {item_id})")
@@ -100,7 +101,8 @@ def delete_item(item_id):
     # First check if item exists
     check_query = "SELECT COUNT(*) FROM items WHERE id = ?"
     try:
-        result = DatabaseManager.execute_query(check_query, (item_id,), fetch=True)
+        result = DatabaseManager.execute_query(
+            check_query, (item_id,), fetch=True)
         if not result or result[0][0] == 0:
             logger.error(f"Item not found for deletion: ID {item_id}")
             return False
@@ -111,7 +113,8 @@ def delete_item(item_id):
     # Delete the item
     delete_query = "DELETE FROM items WHERE id = ?"
     try:
-        success = DatabaseManager.execute_query(delete_query, (item_id,), commit=True)
+        success = DatabaseManager.execute_query(
+            delete_query, (item_id,), commit=True)
         if success:
             logger.info(f"Item deleted successfully: ID {item_id}")
             return True
@@ -174,7 +177,8 @@ def add_employee(
     """Add a new employee with specified role"""
     # Check if username already exists
     check_query = "SELECT username FROM employees WHERE username = ?"
-    result = DatabaseManager.execute_query(check_query, (username,), fetch=True)
+    result = DatabaseManager.execute_query(
+        check_query, (username,), fetch=True)
 
     if result and result[0]:
         return False, "Username already exists. Please choose a different username."
@@ -212,10 +216,12 @@ def add_employee(
             commit=True
         )
         if success:
-            logger.info(f"New employee added: {username} ({first_name} {last_name})")
+            logger.info(f"New employee added: {
+                        username} ({first_name} {last_name})")
             return (
                 True,
-                f"Employee {first_name} {last_name} added successfully as {user_role}! They will be required to change their password on first login.",
+                f"Employee {first_name} {last_name} added successfully as {
+                    user_role}! They will be required to change their password on first login.",
             )
         else:
             logger.error(f"Failed to add employee: {username}")
@@ -233,7 +239,8 @@ def update_employee(username, first_name, last_name, role):
         WHERE username = ?
     """
     try:
-        success = DatabaseManager.execute_query(query, (first_name, last_name, role, username), commit=True)
+        success = DatabaseManager.execute_query(
+            query, (first_name, last_name, role, username), commit=True)
         if success:
             logger.info(f"Employee updated successfully: {username}")
             return True
@@ -253,9 +260,11 @@ def update_employee_status(employee_id, is_active):
         WHERE id = ?
     """
     try:
-        success = DatabaseManager.execute_query(query, (is_active, employee_id), commit=True)
+        success = DatabaseManager.execute_query(
+            query, (is_active, employee_id), commit=True)
         if success:
-            logger.info(f"Employee status updated successfully: ID {employee_id}, active: {is_active}")
+            logger.info(f"Employee status updated successfully: ID {
+                        employee_id}, active: {is_active}")
             return True
         else:
             logger.error(f"Failed to update employee status: ID {employee_id}")
@@ -277,7 +286,8 @@ def add_post(author_username, content):
         VALUES (?, ?)
     """
     try:
-        success = DatabaseManager.execute_query(query, (author_username, content), commit=True)
+        success = DatabaseManager.execute_query(
+            query, (author_username, content), commit=True)
         if success:
             logger.info(f"New post added successfully by {author_username}")
             return True

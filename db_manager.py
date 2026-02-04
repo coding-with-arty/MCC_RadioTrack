@@ -3,7 +3,7 @@ RadioTrack - Radio Inventory Management System
 --------------------------------------
 db_manager.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -29,11 +29,16 @@ class DatabaseManager:
             conn = sqlite3.connect(str(db_path))
 
             # Enable security features
-            conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key constraints
-            conn.execute("PRAGMA journal_mode = WAL")  # Enable WAL mode for better concurrency
-            conn.execute("PRAGMA synchronous = NORMAL")  # Balance between performance and safety
-            conn.execute("PRAGMA cache_size = 10000")  # Increase cache size for better performance
-            conn.execute("PRAGMA temp_store = MEMORY")  # Use memory for temporary storage
+            # Enable foreign key constraints
+            conn.execute("PRAGMA foreign_keys = ON")
+            # Enable WAL mode for better concurrency
+            conn.execute("PRAGMA journal_mode = WAL")
+            # Balance between performance and safety
+            conn.execute("PRAGMA synchronous = NORMAL")
+            # Increase cache size for better performance
+            conn.execute("PRAGMA cache_size = 10000")
+            # Use memory for temporary storage
+            conn.execute("PRAGMA temp_store = MEMORY")
 
             # Set row factory for better data access
             conn.row_factory = sqlite3.Row
@@ -134,7 +139,8 @@ def with_connection(func):
             conn = DatabaseManager.get_connection()
             return func(conn, *args, **kwargs)
         except sqlite3.Error as e:
-            logger.error(f"Database connection error in {func.__name__}: {str(e)}")
+            logger.error(f"Database connection error in {
+                         func.__name__}: {str(e)}")
             raise DatabaseError(f"Database connection error: {str(e)}")
         finally:
             if conn:
@@ -152,10 +158,13 @@ def with_retries(func):
             except (sqlite3.Error, DatabaseError) as e:
                 last_error = e
                 if attempt < 2:  # MAX_RETRIES - 1
-                    logger.warning(f"Retrying database operation ({attempt+1}/3): {str(e)}")
+                    logger.warning(
+                        f"Retrying database operation ({attempt+1}/3): {str(e)}")
                 else:
-                    logger.error(f"Database operation failed after 3 attempts: {str(e)}")
-        raise DatabaseError(f"Database operation failed after 3 attempts: {str(last_error)}")
+                    logger.error(
+                        f"Database operation failed after 3 attempts: {str(e)}")
+        raise DatabaseError(
+            f"Database operation failed after 3 attempts: {str(last_error)}")
     return wrapper
 
 
@@ -369,8 +378,10 @@ def initialize_db():
         try:
             c.execute("SELECT last_password_change FROM employees LIMIT 1")
         except sqlite3.OperationalError:
-            c.execute("ALTER TABLE employees ADD COLUMN last_password_change DATETIME")
-            c.execute("ALTER TABLE employees ADD COLUMN is_approved BOOLEAN DEFAULT 1")
+            c.execute(
+                "ALTER TABLE employees ADD COLUMN last_password_change DATETIME")
+            c.execute(
+                "ALTER TABLE employees ADD COLUMN is_approved BOOLEAN DEFAULT 1")
             logger.info("Added security columns to employees table")
 
         # Create default admin user if it doesn't exist

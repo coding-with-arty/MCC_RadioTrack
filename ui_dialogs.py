@@ -3,7 +3,7 @@ RadioTrack - Radio Inventory Management System
 --------------------------------------
 ui_dialogs.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -62,7 +62,8 @@ def confirm_action(
     if st.session_state[dialog_key]:
         with st.container():
             st.markdown(
-                f"<div style='background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 5px solid #{'dc3545' if dangerous else '17a2b8'};'>",
+                f"<div style='background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 5px solid #{
+                    'dc3545' if dangerous else '17a2b8'};'>",
                 unsafe_allow_html=True,
             )
             st.markdown(f"### {icon} {title}")
@@ -223,8 +224,10 @@ class Notification:
 
                 with cols[0]:
                     st.markdown(
-                        f"<div style='background-color: {color}22; color: {color}; padding: 10px; "
-                        f"border-radius: 5px; border-left: 5px solid {color};'>"
+                        f"<div style='background-color: {
+                            color}22; color: {color}; padding: 10px; "
+                        f"border-radius: 5px; border-left: 5px solid {
+                            color};'>"
                         f"{icon} {notification['message']}</div>",
                         unsafe_allow_html=True,
                     )

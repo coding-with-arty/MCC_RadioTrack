@@ -3,7 +3,7 @@ RadioTrack - Department of Corrections Radio Management System
 --------------------------------------
 auth.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -70,7 +70,8 @@ def check_rate_limit(username):
         if now < lockout_until:
             return (
                 False,
-                f"Account locked. Try again in {int((lockout_until - now).total_seconds() / 60)} minutes",
+                f"Account locked. Try again in {
+                    int((lockout_until - now).total_seconds() / 60)} minutes",
             )
 
     return True, None
@@ -101,9 +102,11 @@ def check_password_policy(username):
 
     if last_change:
         from datetime import datetime, timedelta
-        expiry_date = datetime.fromisoformat(last_change) + timedelta(days=PASSWORD_EXPIRY_DAYS)
+        expiry_date = datetime.fromisoformat(
+            last_change) + timedelta(days=PASSWORD_EXPIRY_DAYS)
         if datetime.now() > expiry_date:
             return True, f"Password expired after {PASSWORD_EXPIRY_DAYS} days"
+
 
 def get_failed_login_count(username):
     """Get the number of failed login attempts for a user"""
@@ -252,7 +255,8 @@ def update_password_change_requirement(username, required=False, admin_user=None
 
     # Verify the change
     verify_query = "SELECT password_change_required FROM employees WHERE username = ?"
-    result = DatabaseManager.execute_query(verify_query, (username,), fetch=True)
+    result = DatabaseManager.execute_query(
+        verify_query, (username,), fetch=True)
 
     if result and result[0] and result[0][0] == (1 if required else 0):
         return True, "Password change requirement updated successfully"
@@ -307,7 +311,8 @@ def register_user(username, password, first_name="", last_name=""):
     """Register a new user (requires admin approval)"""
     # Check if username already exists
     check_query = "SELECT username FROM employees WHERE username = ?"
-    result = DatabaseManager.execute_query(check_query, (username,), fetch=True)
+    result = DatabaseManager.execute_query(
+        check_query, (username,), fetch=True)
 
     if result and result[0]:
         return False, "Username already exists. Please choose a different username."
@@ -333,7 +338,8 @@ def register_user(username, password, first_name="", last_name=""):
 
     # Verify the registration
     verify_query = "SELECT username FROM employees WHERE username = ?"
-    result = DatabaseManager.execute_query(verify_query, (username,), fetch=True)
+    result = DatabaseManager.execute_query(
+        verify_query, (username,), fetch=True)
 
     if result and result[0]:
         return True, "Registration successful! Please wait for admin approval to login."
@@ -359,7 +365,8 @@ def approve_user(username, admin_user=None):
 
     # Verify the approval
     verify_query = "SELECT is_approved FROM employees WHERE username = ?"
-    result = DatabaseManager.execute_query(verify_query, (username,), fetch=True)
+    result = DatabaseManager.execute_query(
+        verify_query, (username,), fetch=True)
 
     if result and result[0] and result[0][0] == 1:
         return True, f"User {username} has been approved"

@@ -3,7 +3,7 @@ RadioTrack - MCC Radio Management System
 --------------------------------------
 ui_components.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -323,7 +323,8 @@ def render_stats_cards(items):
         )
     with col4:
         conditions = items["condition"].value_counts()
-        good_condition = conditions.get("Good", 0) + conditions.get("Excellent", 0)
+        good_condition = conditions.get(
+            "Good", 0) + conditions.get("Excellent", 0)
         st.markdown(
             f'<div class="stat-card" style="background-color: #3aa2d2;">'
             f"<h2>{good_condition}</h2>"
@@ -359,7 +360,8 @@ def render_category_pie_chart(items):
     st.subheader("Items by Category")
     categories = items["category"].value_counts()
     if not categories.empty:
-        fig = px.pie(names=categories.index, values=categories.values, hole=0.4)
+        fig = px.pie(names=categories.index,
+                     values=categories.values, hole=0.4)
         fig.update_layout(
             margin=dict(t=20, b=20, l=20, r=20),
             height=300,
@@ -461,7 +463,8 @@ def render_recent_items(items, limit=5):
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("Recently Added Items")
     if "created_date" in items.columns:
-        recent_items = items.sort_values(by="created_date", ascending=False).head(limit)
+        recent_items = items.sort_values(
+            by="created_date", ascending=False).head(limit)
         if not recent_items.empty:
             for _, item in recent_items.iterrows():
                 st.markdown(
@@ -508,7 +511,8 @@ def render_radio_gallery():
                 if img_path.exists():
                     st.image(str(img_path), caption=title, width=200)
                     st.write(f"**{title}**")
-                    st.write(descriptions.get(img_file, "Radio equipment image"))
+                    st.write(descriptions.get(
+                        img_file, "Radio equipment image"))
                     st.markdown("---")
         elif i % 3 == 1:
             with col2:
@@ -516,7 +520,8 @@ def render_radio_gallery():
                 if img_path.exists():
                     st.image(str(img_path), caption=title, width=200)
                     st.write(f"**{title}**")
-                    st.write(descriptions.get(img_file, "Radio equipment image"))
+                    st.write(descriptions.get(
+                        img_file, "Radio equipment image"))
                     st.markdown("---")
         else:
             with col3:
@@ -524,7 +529,8 @@ def render_radio_gallery():
                 if img_path.exists():
                     st.image(str(img_path), caption=title, width=200)
                     st.write(f"**{title}**")
-                    st.write(descriptions.get(img_file, "Radio equipment image"))
+                    st.write(descriptions.get(
+                        img_file, "Radio equipment image"))
                     st.markdown("---")
 
     st.markdown("</div>", unsafe_allow_html=True)
@@ -565,7 +571,8 @@ def render_inventory_table(items):
                     <p style="margin: 5px 0;">
                         📁 {item['category']} | 📍 {item['location']} |
                         <span style="color: {CONDITION_COLORS[item['condition']]}">⚫ {item['condition']}</span>
-                        {f" | 📝 {item['notes']}" if pd.notna(item['notes']) and item['notes'].strip() else ""}
+                        {f" | 📝 {item['notes']}" if pd.notna(
+                    item['notes']) and item['notes'].strip() else ""}
                     </p>
                 </div>
                 """,
@@ -591,7 +598,8 @@ def render_inventory_table(items):
                         st.session_state[delete_confirm_key] = False
 
                     if not st.session_state[delete_confirm_key]:
-                        st.warning(f"Are you sure you want to delete '{item['name']}'?")
+                        st.warning(f"Are you sure you want to delete '{
+                                   item['name']}'?")
                         col1, col2 = st.columns(2)
                         with col1:
                             if st.button(
@@ -643,10 +651,12 @@ def render_inventory_table(items):
                 condition = form_cols[1].selectbox(
                     "Condition",
                     list(CONDITION_COLORS.keys()),
-                    index=list(CONDITION_COLORS.keys()).index(item["condition"]),
+                    index=list(CONDITION_COLORS.keys()).index(
+                        item["condition"]),
                 )
 
-                notes = form_cols[2].text_input("Notes", value=item.get("notes", ""))
+                notes = form_cols[2].text_input(
+                    "Notes", value=item.get("notes", ""))
 
                 if form_cols[3].form_submit_button("Save"):
                     success = update_item(
@@ -684,7 +694,8 @@ def render_login_form():
                 key="login_password",
                 help="Press Enter or click Login to submit",
             )
-            submit_login = st.form_submit_button("Login", use_container_width=True)
+            submit_login = st.form_submit_button(
+                "Login", use_container_width=True)
 
             return tab1, submit_login, login_username, login_password
 

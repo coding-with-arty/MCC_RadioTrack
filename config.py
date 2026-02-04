@@ -3,7 +3,7 @@ RadioTrack - Radio Inventory Management System
 --------------------------------------
 config.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """

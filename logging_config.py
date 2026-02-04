@@ -3,7 +3,7 @@ RadioTrack - Department of Corrections Radio Management System
 --------------------------------------
 logging_config.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -30,7 +30,8 @@ def setup_logging():
     # Determine if we should log to file (from environment)
     log_to_file = os.getenv("LOG_TO_FILE", "False").lower() == "true"
     log_file = os.getenv(
-        "LOG_FILE", str(log_dir / f'app_{datetime.now().strftime("%Y%m%d")}.log')
+        "LOG_FILE", str(
+            log_dir / f'app_{datetime.now().strftime("%Y%m%d")}.log')
     )
 
     # Configure root logger
@@ -45,7 +46,8 @@ def setup_logging():
     verbose_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s"
     )
-    simple_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    simple_formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s")
 
     # Always add console handler for dev environment
     console_handler = logging.StreamHandler(sys.stdout)

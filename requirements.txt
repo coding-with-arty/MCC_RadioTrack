@@ -1,5 +1,5 @@
 # RadioTrack - Maine Department of Corrections Radio Inventory Management System
-# Copyright (c) 2025 Arthur Belanger (github.com/MusicalViking)
+# Copyright (c) 2025 Arthur Belanger (github.com/coding-with-arty)
 # All rights reserved.
 
 # Requirements for Production Deployment

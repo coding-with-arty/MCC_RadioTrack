@@ -3,7 +3,7 @@ RadioTrack - Department of Corrections Radio Management System
 --------------------------------------
 pdf_generator.py file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
@@ -53,7 +53,8 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
 
         if report_type == "item" and filter_value:
             items = items[items["id"] == int(filter_value)]
-            title = f"MCC Radio Inventory - Item: {items.iloc[0]['name'] if len(items) > 0 else 'Not Found'}"
+            title = f"MCC Radio Inventory - Item: {
+                items.iloc[0]['name'] if len(items) > 0 else 'Not Found'}"
         elif report_type == "location" and filter_value:
             items = items[items["location"] == filter_value]
             title = f"MCC Radio Inventory - Location: {filter_value}"
@@ -77,7 +78,8 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
         )
 
         elements.append(Paragraph(title, title_style))
-        elements.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y')}", styles["Normal"]))
+        elements.append(Paragraph(
+            f"Generated on {datetime.now().strftime('%B %d, %Y')}", styles["Normal"]))
         elements.append(Spacer(1, 20))
 
         # Enhanced summary for complete reports
@@ -101,27 +103,35 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
             # Enhanced filtered reports with proper word wrapping
         if report_type in ["category", "condition", "location"] and filter_value and len(items) > 0:
             # Create enhanced table with better styling
-            table_data = [["Item Name", "Category", "Location", "Condition", "Notes"]]
+            table_data = [["Item Name", "Category",
+                           "Location", "Condition", "Notes"]]
 
             for _, item in items.iterrows():
                 # Use Paragraph objects for proper word wrapping instead of truncating
-                name_style = ParagraphStyle("name_style", fontSize=9, leading=11, wordWrap='CJK')  # Enable word wrapping
-                cat_style = ParagraphStyle("cat_style", fontSize=9, leading=11, wordWrap='CJK')
-                loc_style = ParagraphStyle("loc_style", fontSize=9, leading=11, wordWrap='CJK')
-                notes_style = ParagraphStyle("notes_style", fontSize=9, leading=11, wordWrap='CJK')
+                name_style = ParagraphStyle(
+                    "name_style", fontSize=9, leading=11, wordWrap='CJK')  # Enable word wrapping
+                cat_style = ParagraphStyle(
+                    "cat_style", fontSize=9, leading=11, wordWrap='CJK')
+                loc_style = ParagraphStyle(
+                    "loc_style", fontSize=9, leading=11, wordWrap='CJK')
+                notes_style = ParagraphStyle(
+                    "notes_style", fontSize=9, leading=11, wordWrap='CJK')
 
                 name = Paragraph(str(item["name"]), name_style)
                 category = Paragraph(str(item["category"]), cat_style)
                 location = Paragraph(str(item["location"]), loc_style)
                 condition = str(item["condition"])
-                notes = Paragraph(str(item["notes"]) if pd.notna(item["notes"]) else "", notes_style)
+                notes = Paragraph(str(item["notes"]) if pd.notna(
+                    item["notes"]) else "", notes_style)
 
                 table_data.append([name, category, location, condition, notes])
 
             # Create table with enhanced styling and optimized column widths
             table = Table(
                 table_data,
-                colWidths=[2.5 * inch, 1.8 * inch, 1.8 * inch, 1.2 * inch, 2.7 * inch],  # Optimized to fit 10" available width
+                # Optimized to fit 10" available width
+                colWidths=[2.5 * inch, 1.8 * inch,
+                           1.8 * inch, 1.2 * inch, 2.7 * inch],
                 repeatRows=1
             )
 
@@ -157,8 +167,10 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
 
             # Add alternating row colors
             for i in range(1, len(table_data)):
-                bg_color = colors.HexColor("#FFFFFF") if i % 2 == 0 else colors.HexColor("#F5F5F5")
-                table.setStyle(TableStyle([("BACKGROUND", (0, i), (-1, i), bg_color)]))
+                bg_color = colors.HexColor(
+                    "#FFFFFF") if i % 2 == 0 else colors.HexColor("#F5F5F5")
+                table.setStyle(TableStyle(
+                    [("BACKGROUND", (0, i), (-1, i), bg_color)]))
 
             elements.append(table)
 
@@ -177,28 +189,36 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
                         spaceAfter=15,
                         alignment=1,
                     )
-                    elements.append(Paragraph(f"{location} ({len(location_items)} items)", location_style))
+                    elements.append(
+                        Paragraph(f"{location} ({len(location_items)} items)", location_style))
                     elements.append(Spacer(1, 10))
 
                     # Enhanced table for this location
-                    table_data = [["Item Name", "Category", "Condition", "Notes"]]
+                    table_data = [
+                        ["Item Name", "Category", "Condition", "Notes"]]
 
                     for _, item in location_items.iterrows():
                         # Use Paragraph objects for proper word wrapping instead of truncating
-                        name_style = ParagraphStyle("name_style", fontSize=8, leading=10, wordWrap='CJK')  # Enable word wrapping
-                        cat_style = ParagraphStyle("cat_style", fontSize=8, leading=10, wordWrap='CJK')
-                        notes_style = ParagraphStyle("notes_style", fontSize=8, leading=10, wordWrap='CJK')
+                        name_style = ParagraphStyle(
+                            "name_style", fontSize=8, leading=10, wordWrap='CJK')  # Enable word wrapping
+                        cat_style = ParagraphStyle(
+                            "cat_style", fontSize=8, leading=10, wordWrap='CJK')
+                        notes_style = ParagraphStyle(
+                            "notes_style", fontSize=8, leading=10, wordWrap='CJK')
 
                         name = Paragraph(str(item["name"]), name_style)
                         category = Paragraph(str(item["category"]), cat_style)
                         condition = str(item["condition"])
-                        notes = Paragraph(str(item["notes"]) if pd.notna(item["notes"]) else "", notes_style)
+                        notes = Paragraph(str(item["notes"]) if pd.notna(
+                            item["notes"]) else "", notes_style)
 
                         table_data.append([name, category, condition, notes])
 
                     table = Table(
                         table_data,
-                        colWidths=[2.5 * inch, 1.8 * inch, 1.2 * inch, 3.5 * inch],  # Optimized for complete report layout
+                        # Optimized for complete report layout
+                        colWidths=[2.5 * inch, 1.8 *
+                                   inch, 1.2 * inch, 3.5 * inch],
                         repeatRows=1
                     )
 
@@ -212,7 +232,8 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
                     table.setStyle(
                         TableStyle([
                             # Enhanced header styling
-                            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#2196F3")),
+                            ("BACKGROUND", (0, 0), (-1, 0),
+                             colors.HexColor("#2196F3")),
                             ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
                             ("ALIGN", (0, 0), (-1, 0), "CENTER"),
                             ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
@@ -221,8 +242,10 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
                             ("TOPPADDING", (0, 0), (-1, 0), 10),
                             ("VALIGN", (0, 0), (-1, 0), "MIDDLE"),
                             # Enhanced content styling with word wrap support
-                            ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#F8F9FA")),
-                            ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#DEE2E6")),
+                            ("BACKGROUND", (0, 1), (-1, -1),
+                             colors.HexColor("#F8F9FA")),
+                            ("GRID", (0, 0), (-1, -1), 1,
+                             colors.HexColor("#DEE2E6")),
                             ("VALIGN", (0, 1), (-1, -1), "TOP"),
                             ("LEFTPADDING", (0, 1), (-1, -1), 8),
                             ("RIGHTPADDING", (0, 1), (-1, -1), 8),
@@ -233,8 +256,10 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
 
                     # Add alternating row colors
                     for i in range(1, len(table_data)):
-                        bg_color = colors.HexColor("#FFFFFF") if i % 2 == 0 else colors.HexColor("#F5F5F5")
-                        table.setStyle(TableStyle([("BACKGROUND", (0, i), (-1, i), bg_color)]))
+                        bg_color = colors.HexColor(
+                            "#FFFFFF") if i % 2 == 0 else colors.HexColor("#F5F5F5")
+                        table.setStyle(TableStyle(
+                            [("BACKGROUND", (0, i), (-1, i), bg_color)]))
 
                     elements.append(table)
                     elements.append(Spacer(1, 20))
@@ -250,6 +275,7 @@ def generate_inventory_pdf(report_type="complete", filter_value=None):
     buffer.seek(0)
     return buffer
 
+
 def create_fallback_pdf():
     """Create a minimal fallback PDF when main generation fails"""
     buffer = io.BytesIO()
@@ -258,9 +284,12 @@ def create_fallback_pdf():
     styles = getSampleStyleSheet()
     elements = []
 
-    elements.append(Paragraph("RadioTrack Inventory Report", styles["Heading1"]))
-    elements.append(Paragraph("PDF generation encountered an issue.", styles["Normal"]))
-    elements.append(Paragraph("Please check the application data and try again.", styles["Normal"]))
+    elements.append(
+        Paragraph("RadioTrack Inventory Report", styles["Heading1"]))
+    elements.append(
+        Paragraph("PDF generation encountered an issue.", styles["Normal"]))
+    elements.append(Paragraph(
+        "Please check the application data and try again.", styles["Normal"]))
 
     doc.build(elements)
     return buffer
