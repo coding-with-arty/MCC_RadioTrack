@@ -13,6 +13,19 @@
 **🚀 Ready for Production Deployment | 🔒 Security Hardened | 📊 Enterprise Ready**
 
 ---
+# 🔥 Fastest Way to Get Running (Tested Path)
+
+git clone https://github.com/coding-with-arty/MCC_RadioTrack.git
+cd radiotrack
+cp .env.example .env
+docker compose up -d --build
+
+Then immediately:
+
+Open: http://localhost:8501
+Login: admin / Admin@123!
+If you see the dashboard → it worked.
+---
 
 ## 🎯 Executive Summary
 
