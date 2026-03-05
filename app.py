@@ -3,11 +3,43 @@ RadioTrack - Radio Inventory Management System
 --------------------------------------
 Main application file for Streamlit UI
 --------------------------------------
-Author: Arthur Belanger (github.com/MusicalViking)
+Author: Arthur Belanger (github.com/coding-with-arty)
 Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
 
+from ui_dialogs import Notification, confirm_action, show_toast
+from ui_components import (apply_custom_css, render_category_pie_chart,
+                           render_condition_overview, render_inventory_table,
+                           render_location_bar_chart, render_login_form,
+                           render_recent_items, render_sidebar_navigation,
+                           render_stats_cards, render_system_stats,
+                           set_background)
+from simple_backup import get_backup_manager
+from pdf_generator import generate_inventory_pdf
+from models import (add_employee, add_item, add_post, delete_item, delete_post,
+                    get_categories, get_employee, get_employees, get_items,
+                    get_locations, get_posts, update_employee, update_item)
+from logging_config import get_logger
+from db_manager import DatabaseManager, initialize_db, update_database_schema
+from config import CATEGORIES, CONDITION_COLORS, LOCATIONS
+from auth import (authenticate_user, change_password, check_user_permission,
+                  register_user, update_password_change_requirement,
+                  validate_password_strength)
+from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
+                                TableStyle)
+from reportlab.lib.units import inch
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+import streamlit as st
+import pandas as pd
+from io import BytesIO
+from datetime import datetime
+import time
+import tempfile
+import sqlite3
+import logging
 import json
 import os
 import shutil
@@ -19,45 +51,10 @@ os.environ["STREAMLIT_SERVER_RUN_ON_SAVE"] = "false"
 os.environ["STREAMLIT_SERVER_HEADLESS"] = "true"
 os.environ["STREAMLIT_SESSION_IDLE_TIMEOUT"] = "3600"  # 60 minutes timeout
 
-import logging
-import os
-import sqlite3
-import tempfile
-import time
-from datetime import datetime
-from io import BytesIO
-from pathlib import Path
 
-import pandas as pd
-import streamlit as st
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
-                                TableStyle)
-
-from auth import (authenticate_user, change_password, check_user_permission,
-                  register_user, update_password_change_requirement,
-                  validate_password_strength)
 # Import modules
-from config import CATEGORIES, CONDITION_COLORS, LOCATIONS
-from db_manager import DatabaseManager, initialize_db, update_database_schema
 # Setup logging
-from logging_config import get_logger
-from models import (add_employee, add_item, add_post, delete_item, delete_post,
-                    get_categories, get_employee, get_employees, get_items,
-                    get_locations, get_posts, update_employee, update_item)
-from pdf_generator import generate_inventory_pdf
 # Using simplified versions without external dependencies
-from simple_backup import get_backup_manager
-from ui_components import (apply_custom_css, render_category_pie_chart,
-                           render_condition_overview, render_inventory_table,
-                           render_location_bar_chart, render_login_form,
-                           render_recent_items, render_sidebar_navigation,
-                           render_stats_cards, render_system_stats,
-                           set_background)
-from ui_dialogs import Notification, confirm_action, show_toast
 
 logger = get_logger(__name__)
 
@@ -101,8 +98,10 @@ def check_session_timeout():
 
     if session_duration.total_seconds() > timeout_seconds:
         # Session expired
-        logger.warning(f"Session expired for user {st.session_state.user.get('username', 'unknown')}")
+        logger.warning(f"Session expired for user {
+                       st.session_state.user.get('username', 'unknown')}")
         return True
+
 
 def init_session_state():
     """Initialize all session state variables only if they don't exist"""
@@ -152,7 +151,8 @@ def force_password_change_screen():
         st.info("For security reasons, you need to set a new password.")
 
         new_password = st.text_input("New Password", type="password")
-        confirm_password = st.text_input("Confirm New Password", type="password")
+        confirm_password = st.text_input(
+            "Confirm New Password", type="password")
         submit = st.form_submit_button("Change Password")
 
         if submit:
@@ -185,7 +185,8 @@ def force_password_change_screen():
                         else:
                             st.session_state.view = "dashboard"
 
-                        st.success("Password changed successfully! Redirecting...")
+                        st.success(
+                            "Password changed successfully! Redirecting...")
                         st.rerun()
                     else:
                         st.error(f"Failed to change password: {message}")
@@ -253,7 +254,8 @@ def dashboard_page():
     poor_condition_items = items[items["condition"] == "Poor"]
     if not poor_condition_items.empty:
         st.error(
-            f"🚨 **URGENT:** {len(poor_condition_items)} item(s) are in poor condition and need immediate attention!",
+            f"🚨 **URGENT:** {len(poor_condition_items)
+                             } item(s) are in poor condition and need immediate attention!",
             icon="⚠️",
         )
 
@@ -267,8 +269,10 @@ def dashboard_page():
     with post_form_col:
         st.subheader("New Message")
         with st.form("new_post_form"):
-            post_content = st.text_area("Share a message with everyone:", height=150)
-            submitted = st.form_submit_button("Post Message", use_container_width=True)
+            post_content = st.text_area(
+                "Share a message with everyone:", height=150)
+            submitted = st.form_submit_button(
+                "Post Message", use_container_width=True)
             if submitted:
                 if post_content.strip():
                     if add_post(
@@ -350,7 +354,8 @@ def admin_dashboard_page():
     poor_condition_items = items[items["condition"] == "Poor"]
     if not poor_condition_items.empty:
         st.error(
-            f"🚨 **URGENT:** {len(poor_condition_items)} item(s) are in poor condition and need immediate attention!",
+            f"🚨 **URGENT:** {len(poor_condition_items)
+                             } item(s) are in poor condition and need immediate attention!",
             icon="⚠️",
         )
 
@@ -387,7 +392,8 @@ def admin_dashboard_page():
                 if submitted:
                     if post_content.strip():
                         if add_post(
-                            st.session_state.user["username"], post_content.strip()
+                            st.session_state.user["username"], post_content.strip(
+                            )
                         ):
                             st.success("Announcement posted successfully!")
                             st.rerun()
@@ -400,7 +406,8 @@ def admin_dashboard_page():
             posts = get_posts()
             if not posts.empty:
                 for i, post in posts.iterrows():
-                    full_name = f"{post['first_name']} {post['last_name']}".strip()
+                    full_name = f"{post['first_name']} {
+                        post['last_name']}".strip()
                     display_name = post["author_username"]
                     if full_name and full_name != post["author_username"]:
                         display_name += f" ({full_name})"
@@ -408,7 +415,8 @@ def admin_dashboard_page():
                     # Only expand the first (latest) post
                     is_latest = i == 0
                     with st.expander(
-                        f"Posted by {display_name} on {post['created_date'][:16]}",
+                        f"Posted by {display_name} on {
+                            post['created_date'][:16]}",
                         expanded=is_latest,
                     ):
                         st.write(post["content"])
@@ -429,7 +437,8 @@ def admin_dashboard_page():
         with col1:
             dashboard_report_type = st.selectbox(
                 "Report Type",
-                options=["Complete Inventory", "Single Item", "By Location", "By Category", "By Condition"],
+                options=["Complete Inventory", "Single Item",
+                         "By Location", "By Category", "By Condition"],
                 help="Select the type of report to generate",
                 key="dashboard_export_report_type"
             )
@@ -441,7 +450,8 @@ def admin_dashboard_page():
                 # Get all items for selection
                 all_items = get_items()
                 if not all_items.empty:
-                    item_options = [f"{row['name']} (ID: {row['id']})" for _, row in all_items.iterrows()]
+                    item_options = [
+                        f"{row['name']} (ID: {row['id']})" for _, row in all_items.iterrows()]
                     item_selection = st.selectbox(
                         "Select Item",
                         options=[""] + item_options,
@@ -450,7 +460,8 @@ def admin_dashboard_page():
                     )
                     if item_selection:
                         # Extract item ID from selection
-                        dashboard_filter_value = int(item_selection.split("(ID: ")[1].rstrip(")"))
+                        dashboard_filter_value = int(
+                            item_selection.split("(ID: ")[1].rstrip(")"))
                 else:
                     st.info("No items available for selection")
 
@@ -473,7 +484,8 @@ def admin_dashboard_page():
             elif dashboard_report_type == "By Condition":
                 dashboard_filter_value = st.selectbox(
                     "Select Condition",
-                    options=[""] + ["Excellent", "Good", "Fair", "Poor", "Need for order"],
+                    options=[""] + ["Excellent", "Good",
+                                    "Fair", "Poor", "Need for order"],
                     help="Choose a condition to generate a condition-specific report",
                     key="dashboard_export_condition_filter"
                 ) or None
@@ -505,7 +517,8 @@ def admin_dashboard_page():
                 elif dashboard_report_type == "By Condition" and dashboard_filter_value:
                     report_type_code = "condition"
 
-                pdf_buffer = generate_inventory_pdf(report_type_code, dashboard_filter_value)
+                pdf_buffer = generate_inventory_pdf(
+                    report_type_code, dashboard_filter_value)
 
                 # Generate appropriate filename with timestamp
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -514,11 +527,13 @@ def admin_dashboard_page():
                 elif report_type_code == "item":
                     # Get item name for filename
                     all_items = get_items()
-                    item_row = all_items[all_items["id"] == dashboard_filter_value]
+                    item_row = all_items[all_items["id"]
+                                         == dashboard_filter_value]
                     item_name = item_row["name"].iloc[0] if not item_row.empty else "Unknown"
                     filename = f"MCC_{item_name}_Report_{timestamp}.pdf"
                 else:
-                    filename = f"MCC_{dashboard_filter_value}_Report_{timestamp}.pdf"
+                    filename = f"MCC_{dashboard_filter_value}_Report_{
+                        timestamp}.pdf"
 
                 st.download_button(
                     label="Download MCC Radio Inventory PDF",
@@ -609,7 +624,8 @@ def admin_dashboard_page():
         pending_approvals = get_pending_approvals()
         if pending_approvals:
             st.subheader("Pending Employee Approvals")
-            st.warning(f"{len(pending_approvals)} employee(s) waiting for approval")
+            st.warning(f"{len(pending_approvals)
+                          } employee(s) waiting for approval")
 
             for username, first_name, last_name, created_date in pending_approvals:
                 with st.container():
@@ -635,7 +651,8 @@ def admin_dashboard_page():
         st.subheader("Current Employees")
         employees = get_employees()
         if employees.empty:
-            st.info("No employees found. Add your first employee using the form above.")
+            st.info(
+                "No employees found. Add your first employee using the form above.")
         else:
             for _, emp in employees.iterrows():
                 with st.container():
@@ -677,7 +694,8 @@ def admin_dashboard_page():
                         )
                         st.write("Common fixes:")
                         st.write("- Check database file permissions")
-                        st.write("- Verify config.py has valid CATEGORIES/LOCATIONS")
+                        st.write(
+                            "- Verify config.py has valid CATEGORIES/LOCATIONS")
                         st.write("- Check logs for SQL errors")
 
         with col2:
@@ -757,13 +775,16 @@ def admin_dashboard_page():
                                             st.success(
                                                 "Database restored successfully!"
                                             )
-                                            show_toast("Restore completed", icon="✅")
+                                            show_toast(
+                                                "Restore completed", icon="✅")
                                             st.rerun()
                                         else:
-                                            st.error("Failed to restore database")
+                                            st.error(
+                                                "Failed to restore database")
                                     except Exception as e:
                                         st.error(f"Restore failed: {str(e)}")
-                                        logger.error(f"Restore error: {str(e)}")
+                                        logger.error(
+                                            f"Restore error: {str(e)}")
                         st.divider()
             if st.button("📊 Generate Health Report"):
                 try:
@@ -772,7 +793,8 @@ def admin_dashboard_page():
                     st.download_button(
                         label="⬇️ Download Health Report PDF",
                         data=pdf_buffer,
-                        file_name=f"health_report_{datetime.now().strftime('%Y%m%d')}.pdf",
+                        file_name=f"health_report_{
+                            datetime.now().strftime('%Y%m%d')}.pdf",
                         mime="application/pdf",
                     )
                 except Exception as e:
@@ -803,7 +825,8 @@ def handle_delete_confirmation():
     # Use our improved confirmation dialog component
     confirmed = confirm_action(
         title="Delete Item",
-        message=f"Are you sure you want to delete the item '{item_name}'? This action cannot be undone.",
+        message=f"Are you sure you want to delete the item '{
+            item_name}'? This action cannot be undone.",
         confirm_text="Yes, Delete",
         cancel_text="Cancel",
         icon="🗑️",
@@ -833,7 +856,8 @@ def handle_delete_confirmation():
             st.session_state.delete_item_id = None
             st.session_state.show_delete_confirm = False
             st.rerun()
-    elif confirmed is False:  # Cancel was clicked (None means dialog is still open)
+    # Cancel was clicked (None means dialog is still open)
+    elif confirmed is False:
         st.session_state.delete_item_id = None
         st.session_state.show_delete_confirm = False
         st.rerun()
@@ -848,7 +872,8 @@ def inventory_page():
     poor_condition_items = items[items["condition"] == "Poor"]
     if not poor_condition_items.empty:
         st.error(
-            f"🚨 **URGENT:** {len(poor_condition_items)} item(s) are in poor condition and need immediate attention!",
+            f"🚨 **URGENT:** {len(poor_condition_items)
+                             } item(s) are in poor condition and need immediate attention!",
             icon="⚠️",
         )
 
@@ -902,7 +927,8 @@ def inventory_page():
         # Apply search
         if search:
             filtered_items = filtered_items[
-                filtered_items["name"].str.contains(search, case=False, na=False)
+                filtered_items["name"].str.contains(
+                    search, case=False, na=False)
             ]
 
         # Display total count
@@ -917,7 +943,8 @@ def inventory_page():
         with col1:
             report_type = st.selectbox(
                 "Report Type",
-                options=["Complete Inventory", "Single Item", "By Location", "By Category", "By Condition"],
+                options=["Complete Inventory", "Single Item",
+                         "By Location", "By Category", "By Condition"],
                 help="Select the type of report to generate",
                 key="export_report_type"  # Add unique key
             )
@@ -929,7 +956,8 @@ def inventory_page():
                 # Get all items for selection
                 all_items = get_items()
                 if not all_items.empty:
-                    item_options = [f"{row['name']} (ID: {row['id']})" for _, row in all_items.iterrows()]
+                    item_options = [
+                        f"{row['name']} (ID: {row['id']})" for _, row in all_items.iterrows()]
                     item_selection = st.selectbox(
                         "Select Item",
                         options=[""] + item_options,
@@ -938,7 +966,8 @@ def inventory_page():
                     )
                     if item_selection:
                         # Extract item ID from selection
-                        filter_value = int(item_selection.split("(ID: ")[1].rstrip(")"))
+                        filter_value = int(
+                            item_selection.split("(ID: ")[1].rstrip(")"))
                 else:
                     st.info("No items available for selection")
 
@@ -961,7 +990,8 @@ def inventory_page():
             elif report_type == "By Condition":
                 filter_value = st.selectbox(
                     "Select Condition",
-                    options=[""] + ["Excellent", "Good", "Fair", "Poor", "Need for order"],
+                    options=[""] + ["Excellent", "Good",
+                                    "Fair", "Poor", "Need for order"],
                     help="Choose a condition to generate a condition-specific report",
                     key="export_condition_filter"
                 ) or None
@@ -993,7 +1023,8 @@ def inventory_page():
                 elif report_type == "By Condition" and filter_value:
                     report_type_code = "condition"
 
-                pdf_buffer = generate_inventory_pdf(report_type_code, filter_value)
+                pdf_buffer = generate_inventory_pdf(
+                    report_type_code, filter_value)
 
                 # Generate appropriate filename with timestamp
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -1088,8 +1119,10 @@ def add_item_page():
 
         with col1:
             name = st.text_input("Item Name*", help="Required field")
-            category = st.selectbox("Category*", CATEGORIES, help="Required field")
-            location = st.selectbox("Location*", LOCATIONS, help="Required field")
+            category = st.selectbox(
+                "Category*", CATEGORIES, help="Required field")
+            location = st.selectbox(
+                "Location*", LOCATIONS, help="Required field")
 
         with col2:
             condition = st.selectbox(
@@ -1197,7 +1230,8 @@ def edit_item_page():
                             st.session_state.view = "inventory"
                             st.rerun()
                         else:
-                            st.error("Failed to update item. Please try again.")
+                            st.error(
+                                "Failed to update item. Please try again.")
                     else:
                         st.error("Please fill in all required fields.")
 
@@ -1234,7 +1268,8 @@ def edit_employee_page():
         col1, col2 = st.columns(2)
 
         with col1:
-            first_name = st.text_input("First Name", value=employee["first_name"])
+            first_name = st.text_input(
+                "First Name", value=employee["first_name"])
             last_name = st.text_input("Last Name", value=employee["last_name"])
 
         with col2:
@@ -1283,7 +1318,7 @@ def generate_health_report():
 
     buffer = BytesIO()
     doc = SimpleDocTemplate(
-        buffer, 
+        buffer,
         pagesize=landscape(letter),
         leftMargin=0.42*inch,
         rightMargin=0.42*inch,
@@ -1324,7 +1359,8 @@ def generate_health_report():
     story.append(Paragraph("MCC Radio Database Health Report", title_style))
     story.append(
         Paragraph(
-            f"Generated on: {datetime.now().strftime('%B %d, %Y at %H:%M:%S')}",
+            f"Generated on: {datetime.now().strftime(
+                '%B %d, %Y at %H:%M:%S')}",
             ParagraphStyle("DateStyle", parent=styles["Normal"], alignment=1),
         )
     )
@@ -1357,7 +1393,8 @@ def generate_health_report():
         ["System Files", f"{total_files} files ({python_files} Python)", "✓"],
     ]
 
-    overview_table = Table(overview_data, colWidths=[2 * inch, 3 * inch, 1 * inch])
+    overview_table = Table(overview_data, colWidths=[
+                           2 * inch, 3 * inch, 1 * inch])
     overview_table.setStyle(
         TableStyle(
             [
@@ -1373,7 +1410,8 @@ def generate_health_report():
                 ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#E3F2FD")),
                 ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#BBDEFB")),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("ALIGN", (2, 0), (2, -1), "CENTER"),  # Center the Status column
+                # Center the Status column
+                ("ALIGN", (2, 0), (2, -1), "CENTER"),
                 ("VALIGN", (0, 1), (-1, -1), "TOP"),
                 # Alternating row colors
                 ("BACKGROUND", (0, 1), (-1, 1), colors.HexColor("#E3F2FD")),
@@ -1433,11 +1471,13 @@ def generate_health_report():
         if row_count == 0:
             status = "⚠"
 
-        db_info.append([table_name, str(row_count), str(last_modified), status])
+        db_info.append([table_name, str(row_count),
+                       str(last_modified), status])
 
     conn.close()
 
-    db_table = Table(db_info, colWidths=[2 * inch, 1 * inch, 2 * inch, 1 * inch])
+    db_table = Table(db_info, colWidths=[
+                     2 * inch, 1 * inch, 2 * inch, 1 * inch])
     db_table.setStyle(
         TableStyle(
             [
@@ -1453,7 +1493,8 @@ def generate_health_report():
                 ("BACKGROUND", (0, 1), (-1, -1), colors.HexColor("#E3F2FD")),
                 ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#BBDEFB")),
                 ("ALIGN", (1, 1), (1, -1), "CENTER"),  # Center the count column
-                ("ALIGN", (3, 1), (3, -1), "CENTER"),  # Center the status column
+                # Center the status column
+                ("ALIGN", (3, 1), (3, -1), "CENTER"),
                 ("VALIGN", (0, 1), (-1, -1), "TOP"),
                 # Alternating row colors for readability
             ]
@@ -1504,7 +1545,8 @@ def generate_health_report():
         ],
     ]
 
-    security_table = Table(security_checks, colWidths=[2.5 * inch, 1 * inch, 3 * inch])
+    security_table = Table(security_checks, colWidths=[
+                           2.5 * inch, 1 * inch, 3 * inch])
     security_table.setStyle(
         TableStyle(
             [
@@ -1517,7 +1559,8 @@ def generate_health_report():
                 ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
                 # Content formatting
                 ("GRID", (0, 0), (-1, -1), 1, colors.HexColor("#BBDEFB")),
-                ("ALIGN", (1, 1), (1, -1), "CENTER"),  # Center the status column
+                # Center the status column
+                ("ALIGN", (1, 1), (1, -1), "CENTER"),
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                 # Color coding for status
                 (
@@ -1769,9 +1812,11 @@ def main():
                 elif st.session_state.view == "admin_dashboard":
                     print(f"🔍 Checking admin dashboard access")
                     print(
-                        f"   Current user: {st.session_state.user.get('username', 'None')}"
+                        f"   Current user: {
+                            st.session_state.user.get('username', 'None')}"
                     )
-                    print(f"   User role: {st.session_state.user.get('role', 'None')}")
+                    print(f"   User role: {
+                          st.session_state.user.get('role', 'None')}")
                     if st.session_state.user.get("role") == "corrections_supervisor":
                         print("   ✅ Access granted to admin dashboard")
                         admin_dashboard_page()
@@ -1781,7 +1826,8 @@ def main():
                         st.rerun()
                 elif st.session_state.view == "edit_employee":
                     print(f"🔍 Checking edit employee access")
-                    print(f"   User role: {st.session_state.user.get('role', 'None')}")
+                    print(f"   User role: {
+                          st.session_state.user.get('role', 'None')}")
                     if st.session_state.user.get("role") == "corrections_supervisor":
                         print("   ✅ Access granted to edit employee")
                         edit_employee_page()
