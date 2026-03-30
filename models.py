@@ -79,7 +79,7 @@ def update_item(item_id, category, name, location, condition, notes):
     try:
         success = DatabaseManager.execute_query(
             query, (category, name, location, condition,
-                    notes, item_id), commit=True
+                    notes, int(item_id)), commit=True
         )
         if success:
             logger.info(f"Item updated successfully: {name} (ID: {item_id})")

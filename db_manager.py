@@ -68,7 +68,7 @@ class DatabaseManager:
             else:
                 if commit:
                     conn.commit()
-                return True
+                return cursor.rowcount > 0 #Returns True if a row was actually updated/deleted
 
         except sqlite3.Error as e:
             logger.error(f"Database error: {e}")
