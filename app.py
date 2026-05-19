@@ -1744,7 +1744,9 @@ def check_production_readiness():
 
 
 def clean_old_backups():
-    """Clean up old database backups using the backup manager"""
+    """Clean up old database backups using the backup manager
+        fixed 5/18/26
+    """
     try:
         backup_manager = get_backup_manager()
         backup_manager.clean_old_backups()
