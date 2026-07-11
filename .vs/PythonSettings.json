@@ -1,4 +1,5 @@
 {
   "SuppressEnvironmentCreationPrompt": true,
-  "TestFramework": "Pytest"
+  "TestFramework": "Pytest",
+  "Interpreter": "Global|VisualStudio|anaconda3"
 }
