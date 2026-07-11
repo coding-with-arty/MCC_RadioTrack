@@ -8,6 +8,8 @@ Copyright (c) 2025 Arthur Belanger
 All rights reserved.
 """
 
+#Start working on buildin out a popup for inventory checks
+
 import base64
 import io
 import logging
